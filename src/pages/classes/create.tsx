@@ -5,7 +5,7 @@ import {useBack} from "@refinedev/core";
 import {Separator} from "@/components/ui/separator.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm } from "@refinedev/react-hook-form"
 import {classSchema} from "@/lib/schema.ts";
 import * as z from "zod";
 
@@ -19,7 +19,6 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {Label} from "@/components/ui/label.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Textarea} from "@/components/ui/textarea.tsx";
 import {Loader2} from "lucide-react";
@@ -76,7 +75,7 @@ const Create = () => {
     ];
 
     const bannerPubId = form.watch('bannerCldPubId')
-    const setBannerImage = (field, file) => {
+    const setBannerImage = (field: any, file: any) => {
         if(file) {
             field.onChange(file.url)
             form.setValue('bannerCldPubId', file.publicId, {
@@ -126,7 +125,7 @@ const Create = () => {
                                             <FormControl>
                                                 <UploadWidget 
                                                     value={field.value ? { url: field.value, publicId: bannerPubId ?? '' } : null}
-                                                    onChange={(field: any, file: any) => setBannerImage(file, field)}
+                                                    onChange={(file: any) => setBannerImage(file, field)}
                                                 />
                                             </FormControl>
                                             <FormMessage />

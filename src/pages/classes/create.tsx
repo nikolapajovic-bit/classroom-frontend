@@ -35,6 +35,9 @@ const Create = () => {
             resource: "classes",
             action: "create",
         },
+        defaultValues: {
+            status: "active",
+        }
     });
 
     const {

@@ -1,18 +1,87 @@
 import { ShowView, ShowViewHeader } from '@/components/refine-ui/views/show-view';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ClassDetails } from '@/types'
 import { useShow } from '@refinedev/core'
 import { AdvancedImage } from '@cloudinary/react';
-import React from 'react'
 import { bannerPhoto } from '@/lib/cloudinary';
+import { useParams } from 'react-router';
+import { useMemo } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ShowButton } from '@/components/refine-ui/buttons/show';
+import { useTable } from '@refinedev/react-table';
+import { DataTable } from '@/components/refine-ui/data-table/data-table';
+
+type ClassUser = {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    image?: string | null;
+}
 
 const Show = () => {
-    const { query} = useShow<ClassDetails>({ resource: 'classes' });
+    const { id } = useParams();
+    const classId = id ?? "";
+
+    const { query } = useShow<ClassDetails>({ resource: 'classes' });
 
     const classDetails = query.data?.data;
+
+    const studentColumns = useMemo<ColumnDef<ClassUser>[]>(() => [
+        {
+            id: 'name',
+            accessorKey: 'name',
+            size: 240,
+            header: () => <p className='column-title'>Student</p>,
+            cell: ({ row }) => (
+                <div className='flex items-center gap-2'>
+                    <Avatar className='size-7'>
+                        {row.original.image && (
+                            <AvatarImage src={row.original.image} alt={row.original.name} />
+                        )}
+                        <AvatarFallback>{getInitials(row.original.name)}</AvatarFallback>
+                    </Avatar>
+                    <div className='flex flex-col truncate'>
+                        <span className='truncate'>{row.original.name}</span>
+                        <span className='text-xs text-muted-foreground truncate'>{row.original.email}</span>
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'details',
+            size: 140,
+            header: () => <p className='column-title'>Details</p>,
+            cell: ({ row }) => {
+                <ShowButton resource='users' recordItemId={row.original.id} variant='outline' size='sm'>
+                    View
+                </ShowButton>
+            }
+        }
+    ], []);
+
+    const studentsTable = useTable<ClassUser>({
+        columns: studentColumns,
+        refineCoreProps: {
+            resource: `classes/${classId}/users`,
+            pagination: {
+                pageSize: 3,
+                mode: 'server',
+            },
+            filters: {
+                permanent: [
+                    {field: 'role',
+                    operator: 'eq',
+                    value: 'student'}
+                ]
+            }
+        }
+    });
+
     const { isLoading, isError } = query;
 
     if(isLoading || isError || !classDetails) {
@@ -35,14 +104,23 @@ const Show = () => {
     const { bannerUrl, bannerCldPubId, name, description, capacity, status, teacher, department, subject } = classDetails;
 
   return (
-    <ShowView className='class-view class-show'>
+    <ShowView className='class-view class-show space-y-6'>
         <ShowViewHeader resource='classes' title="Class Details" />
 
         <div className='banner'>
-            {bannerCldPubId ? <AdvancedImage alt="Class Banner" cldImg={bannerPhoto(bannerCldPubId ?? '', name)} /> : <div className='placeholder' />}
+            {bannerUrl ? (
+                bannerUrl.includes('res.cloudinary.com') && bannerCldPubId ? (
+                    <AdvancedImage cldImg={bannerPhoto(bannerCldPubId ?? "", name)} alt='Class Banner' />
+                ): (
+                <img src={bannerUrl} alt={name} loading='lazy' />
+                )
+            ) : (
+                <div className='placeholder' />
+            )}
         </div>
 
         <Card className='details-card'>
+            <div>
             <div className='details-header'>
                 <div>
                     <h1>{name}</h1>
@@ -56,7 +134,7 @@ const Show = () => {
 
             <div className='details-grid'>
                 <div className='instructor'>
-                    <p>Instructor</p>
+                    <p>👨‍🏫 Instructor</p>
                     <div>
                         <img src={teacher?.image ?? placeholderUrl} alt={teacherName} />
 
@@ -68,21 +146,22 @@ const Show = () => {
                 </div>
 
                 <div className='department'>
-                    <p>Department</p>
+                    <p>🏛️ Department</p>
                     <div>
                         <p>{department?.name}</p>
                         <p>{department?.description}</p>
                     </div>
                 </div>
             </div>
+            </div>
 
             <Separator />
 
             <div className='subject'>
-                <p>Subject</p>
+                <p>📚 Subject</p>
 
                 <div>
-                    <Badge variant='outline'>Code: {subject?.code}</Badge>
+                    <Badge variant='outline'>Code: <span>{subject?.code}</span></Badge>
                     <p>{subject?.name}</p>
                     <p>{subject?.description}</p>
                 </div>
@@ -99,10 +178,26 @@ const Show = () => {
                 </ol>
             </div>
 
-            <Button size='lg' className='w-full'>Join Class</Button>
+            <Button size='lg' className='w-full'>Join Class</Button>       
+        </Card>
+
+        <Card className='hover:shadow-md transition-shadow'>
+            <CardHeader className='flex flex-row items-center justify-between'>
+                <CardTitle>Enrolled Students</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <DataTable table={studentsTable} />
+            </CardContent>
         </Card>
     </ShowView>
   )
+}
+
+const getInitials = (name = "") => {
+    const parts = name.trim().split(' ').filter(Boolean);
+    if (parts.length === 0) return '';
+    if (parts.length === 1) return parts[0][0].toUpperCase() ?? "";
+    return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
 }
 
 export default Show

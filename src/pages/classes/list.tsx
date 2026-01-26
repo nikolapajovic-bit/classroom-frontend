@@ -40,24 +40,33 @@ const ClassesList = () => {
     {
       id: 'bannerUrl',
       accessorKey: 'bannerUrl',
-      size: 80,
+      size: 120,
       header: () => <p className="column-title ml-2">Banner</p>,
-      cell: ({ getValue }) => (
-        <div className="flex items-center justify-center ml-2">
+      cell: ({ getValue }) => {
+        const bannerUrl = getValue<string>();
+
+        return bannerUrl ? (
           <img 
-            src={getValue<string>() || '/placeholder-class.png'}
-            alt='Class Banner'
-            className="w-10 h-10 rounded object-cover"
+            src={bannerUrl}
+            alt="Class Banner"
+            className="ml-2 h-10 w-10 rounded-md object-cover"
+            loading="lazy"
           />
-        </div>
-      )
+        ) : (
+          <span className="text-muted-foreground ml-2">No image</span>
+        )
+      }
     },
     {
       id: 'name',
       accessorKey: 'name',
-      size: 200,
+      size: 220,
       header: () => <p className="column-title">Class Name</p>,
-      cell: ({ getValue }) => <span className="text-foreground font-medium">{ getValue<string>() }</span>
+      cell: ({ getValue }) => {
+        const className = getValue<string>();
+
+        return <span className="text-foreground">{ className }</span>
+      }
     },
     {
       id: 'status',
@@ -65,32 +74,46 @@ const ClassesList = () => {
       size: 100,
       header: () => <p className="column-title">Status</p>,
       cell: ({ getValue }) => {
-        const status = getValue<string>();
-        return (
-          <Badge variant={status === 'active' ? 'default' : 'secondary'}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </Badge>
-        )
+        const status = getValue<"active" | "inactive">();
+        const variant = status === 'active' ? 'default' : 'secondary';
+        
+        return <Badge variant={variant}>{ status }</Badge>;
       }
     },
     {
       id: 'subject',
       accessorKey: 'subject.name',
-      size: 150,
+      size: 200,
       header: () => <p className="column-title">Subject</p>,
-      cell: ({ getValue }) => <span className="text-foreground font-medium">{ getValue<string>() }</span>
+      cell: ({ getValue }) => {
+        const subjectName = getValue<string>();
+
+        return subjectName ? (
+          <Badge variant='secondary'>{subjectName}</Badge>
+        ) : (
+          <span className="text-muted-foreground">Not set</span>
+        )
+      }
     },
     {
       id: 'teacher',
       accessorKey: 'teacher.name',
-      size: 150,
+      size: 200,
       header: () => <p className="column-title">Teacher</p>,
-      cell: ({ getValue }) => <span className="text-foreground font-medium">{ getValue<string>() }</span>
+      cell: ({ getValue }) => {
+        const teacherName = getValue<string>();
+
+        return teacherName ? (
+          <span className="text-foreground">{ teacherName }</span>
+        ) : (
+          <span className="text-muted-foreground">Not assigned</span>
+        )
+      }
     },
     {
       id: 'capacity',
       accessorKey: 'capacity',
-      size: 100,
+      size: 120,
       header: () => <p className="column-title">Capacity</p>,
       cell: ({ getValue }) => <span className="text-foreground font-medium">{ getValue<string>() }</span>
     },
@@ -125,7 +148,7 @@ const ClassesList = () => {
       <h1 className="page-title">Classes</h1>
 
       <div className="intro-row">
-        <p>Manage your classes, subjects, and teachers.</p>
+        <p>Quick access to essential metrics and management tools.</p>
 
         <div className="actions-row">
           <div className="search-field">
@@ -140,9 +163,9 @@ const ClassesList = () => {
             />
           </div>
 
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto">
             <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-              <SelectTrigger className="w-45">
+              <SelectTrigger>
                 <SelectValue placeholder='Filter by subject' />
               </SelectTrigger>
 
@@ -159,7 +182,7 @@ const ClassesList = () => {
             </Select>
 
             <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
-              <SelectTrigger className="w-45">
+              <SelectTrigger>
                 <SelectValue placeholder='Filter by teacher' />
               </SelectTrigger>
 

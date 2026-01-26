@@ -14,8 +14,12 @@ const cld = new Cloudinary({
   },
 });
 
-export const bannerPhoto = (imageCldPubId: string, name: string) =>
-  cld
+export const bannerPhoto = (imageCldPubId: string, name: string) => {
+  if (!imageCldPubId || !name) {
+    throw new Error("imageCldPubId and name are required for bannerPhoto");
+  }
+
+  return cld
     .image(imageCldPubId)
     .resize(fill())
     .delivery(format("auto"))
@@ -28,3 +32,4 @@ export const bannerPhoto = (imageCldPubId: string, name: string) =>
         ),
       ).position(new Position().gravity(compass("west")).offsetX(0.02)),
     );
+};

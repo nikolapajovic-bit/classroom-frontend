@@ -9,7 +9,7 @@ import { ListView } from "@/components/refine-ui/views/list-view";
 import { DataTable } from "@/components/refine-ui/data-table/data-table"
 import { ShowButton } from "@/components/refine-ui/buttons/show"
 import { CreateButton } from "@/components/refine-ui/buttons/create"
-import { Breadcrumb } from "@/components/ui/breadcrumb"
+import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb"
 
 type DepartmentListItem = {
     id: number;

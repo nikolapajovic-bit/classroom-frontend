@@ -57,6 +57,9 @@ function App() {
                 syncWithLocation: true,
                 warnWhenUnsavedChanges: true,
                 projectId: "kkWuv7-GgBIfw-P8CGy0",
+                title: {
+                  text: "Classroom"
+                }
               }}
               resources={[
                 {

@@ -13,7 +13,9 @@ import {
   useLogout,
   useRefineOptions,
 } from "@refinedev/core";
-import { LogOutIcon } from "lucide-react";
+import { LogOutIcon, User } from "lucide-react";
+import { redirect, useNavigate } from "react-router";
+import { useGetIdentity } from "@refinedev/core";
 
 export const Header = () => {
   const { isMobile } = useSidebar();
@@ -118,6 +120,8 @@ function MobileHeader() {
 }
 
 const UserDropdown = () => {
+  const navigate = useNavigate();
+  const { data: currentUser } = useGetIdentity<{ id: string; name: string; }>();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   const authProvider = useActiveAuthProvider();
@@ -132,6 +136,12 @@ const UserDropdown = () => {
         <UserAvatar />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          onClick={() => { navigate(`/faculty/show/${currentUser?.id}`)}}
+        >
+          <User />
+          Profile
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             logout();

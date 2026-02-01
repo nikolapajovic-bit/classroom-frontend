@@ -10,11 +10,13 @@ import { CreateButton } from "@/components/refine-ui/buttons/create";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
 import { DataTable } from "@/components/refine-ui/data-table/data-table";
 import { ShowButton } from "@/components/refine-ui/buttons/show";
+import { useGetIdentity } from "@refinedev/core";
 
 import { Subject } from "@/types";
 import { DEPARTMENT_OPTIONS } from "@/constants";
 
 const SubjectList = () => {
+  const { data: currentUser } = useGetIdentity<{ id: string; role: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
 
@@ -142,7 +144,7 @@ const SubjectList = () => {
               </SelectContent>
             </Select>
 
-            <CreateButton resource="subjects" />
+            {currentUser?.role !== 'student' && <CreateButton resource="subjects" />}
           </div>
         </div>
       </div>

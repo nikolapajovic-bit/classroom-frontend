@@ -56,11 +56,11 @@ const Show = () => {
             id: 'details',
             size: 140,
             header: () => <p className='column-title'>Details</p>,
-            cell: ({ row }) => {
+            cell: ({ row }) => (
                 <ShowButton resource='users' recordItemId={row.original.id} variant='outline' size='sm'>
                     View
                 </ShowButton>
-            }
+            )
         }
     ], []);
 

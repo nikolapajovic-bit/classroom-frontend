@@ -2,6 +2,7 @@ import { Search } from "lucide-react"
 import { useMemo, useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { useTable } from "@refinedev/react-table"
+import { useGetIdentity } from "@refinedev/core"
 
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -20,6 +21,7 @@ type DepartmentListItem = {
 }
 
 const DepartmentsList = () => {
+    const { data: currentUser } = useGetIdentity<{ id: string; role: string }>();
     const [searchQuery, setSeachQuery] = useState("");
 
     const departmentColumns = useMemo<ColumnDef<DepartmentListItem>[]>(() => [
@@ -139,7 +141,8 @@ const DepartmentsList = () => {
                         onChange={(e) => setSeachQuery(e.target.value)}
                     />
                 </div>
-                <CreateButton resource="departments" />
+
+                {currentUser?.role !== 'student' && <CreateButton resource="departments" />}
             </div>
         </div>
 

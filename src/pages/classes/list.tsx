@@ -12,8 +12,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { useList } from "@refinedev/core";
 import { ShowButton } from "@/components/refine-ui/buttons/show";
+import { useGetIdentity } from "@refinedev/core";
 
 const ClassesList = () => {
+  const { data: currentUser } = useGetIdentity<{ id: string; role: string; }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedTeacher, setSelectedTeacher] = useState('all');
@@ -32,7 +34,7 @@ const ClassesList = () => {
   const subjects = subjectsQuery?.data?.data || [];
   const teachers = teachersQuery?.data?.data || [];
 
-  const subjectFilters = selectedSubject === 'all' ? [] : [{ field: 'name', operator: 'eq' as const, value: selectedSubject }]
+  const subjectFilters = selectedSubject === 'all' ? [] : [{ field: 'subject', operator: 'eq' as const, value: selectedSubject }]
   const teacherFilters = selectedTeacher === 'all' ? [] : [{ field: 'teacher', operator: 'eq' as const, value: selectedTeacher }]
   const searchFilters = searchQuery ? [{ field: 'name', operator: 'contains' as const, value: searchQuery }] : [];
 
@@ -198,7 +200,7 @@ const ClassesList = () => {
               </SelectContent>
             </Select>
 
-            <CreateButton resource="classes" />
+            {currentUser?.role !== 'student' && <CreateButton resource="classes" />}
           </div>
         </div>
       </div>
